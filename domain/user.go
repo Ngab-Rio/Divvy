@@ -5,7 +5,7 @@ import (
 	"database/sql"
 )
 
-type Users struct {
+type User struct {
 	ID         string `db:"id"`
 	Username   string `db:"username"`
 	Email      string `db:"email"`
@@ -15,9 +15,5 @@ type Users struct {
 }
 
 type UserRepository interface {
-	FindAll(ctx context.Context) ([]Users, error)
-	FindByAll(ctx context.Context, id string) (Users, error)
-	Save(ctx context.Context, u *Users) error
-	Update(ctx context.Context, u *Users) error
-	Delete(ctx context.Context, u *Users) error
+	FindByEmail(ctx context.Context, email string) (User, error)
 }
