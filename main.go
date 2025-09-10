@@ -20,8 +20,10 @@ func main() {
 	userRepository := repository.NewUser(dbConnection)
 
 	authService := service.NewAuth(cnf, userRepository)
+	userService := service.NewUser(userRepository)
 
 	api.NewAuth(app, authService)
+	api.NewUser(app, userService)
 
 	addr := cnf.Server.Host + ":" + cnf.Server.Port
 	fmt.Println("Server running at http://" + addr)

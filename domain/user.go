@@ -3,6 +3,7 @@ package domain
 import (
 	"context"
 	"database/sql"
+	"divvy/divvy-api/dto"
 )
 
 type User struct {
@@ -16,4 +17,9 @@ type User struct {
 
 type UserRepository interface {
 	FindByEmail(ctx context.Context, email string) (User, error)
+	GetAll(ctx context.Context) ([]User, error)
+}
+
+type UserService interface {
+	Index(ctx context.Context) ([]dto.UserResponse, error)
 }
