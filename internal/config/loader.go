@@ -1,18 +1,17 @@
 package config
 
 import (
-	"log"
+	// "log"
 	"os"
-
-	"github.com/joho/godotenv"
+	// "github.com/joho/godotenv"
 )
 
 func Get() *Config {
-	err := godotenv.Load()
+	// err := godotenv.Load()
 
-	if err != nil {
-		log.Fatal("error when loading file configuration: ", err.Error())
-	}
+	// if err != nil {
+	// 	log.Fatal("error when loading file configuration: ", err.Error())
+	// }
 
 	return &Config{
 		Server: Server{
