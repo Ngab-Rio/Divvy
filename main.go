@@ -1,16 +1,21 @@
 package main
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"divvy/divvy-api/internal/config"
+	"fmt"
+
+	"github.com/gofiber/fiber/v2"
+)
 
 func main() {
+	cnf := config.Get()
+
 	app := fiber.New()
 
-	app.Get("/test", developer)
+	addr := cnf.Server.Host + ":" + cnf.Server.Port
+	fmt.Println("Server running at http://" + addr)
 
-	app.Listen(":9000")
-
-}
-
-func developer(ctx *fiber.Ctx) error {
-	return ctx.Status(200).JSON("data")
+	if err := app.Listen(addr); err != nil {
+		panic(err)
+	}
 }
