@@ -21,12 +21,15 @@ func main() {
 	app.Use(middleware.CorsMiddleware())
 
 	userRepository := repository.NewUser(dbConnection)
+	groupRepository := repository.NewGroup(dbConnection)
 
 	authService := service.NewAuth(cnf, userRepository)
 	userService := service.NewUser(userRepository)
+	groupService := service.NewGroup(groupRepository, userRepository)
 
 	api.NewAuth(app, authService)
 	api.NewUser(app, userService, cnf.Jwt.Key)
+	api.NewGroup(app, groupService, cnf.Jwt.Key)
 
 	addr := cnf.Server.Host + ":" + cnf.Server.Port
 	fmt.Println("Server running at http://" + addr)
