@@ -4,6 +4,7 @@ import (
 	"context"
 	"divvy/divvy-api/domain"
 	"divvy/divvy-api/dto"
+	"divvy/divvy-api/internal/middleware"
 	"net/http"
 	"time"
 
@@ -14,13 +15,15 @@ type userApi struct {
 	userService domain.UserService
 }
 
-func NewUser(app *fiber.App, userService domain.UserService) {
+func NewUser(app *fiber.App, userService domain.UserService, secret string) {
 	ua := userApi{
 		userService: userService,
 	}
 
-	app.Get("/users", ua.Index)
-	app.Get("/users/:id", ua.Show)
+	users := app.Group("/users", middleware.JWTProtected(secret))
+
+	users.Get("/", ua.Index)
+	users.Get("/:id", ua.Show)
 }
 
 func (ua userApi) Index(ctx *fiber.Ctx) error {

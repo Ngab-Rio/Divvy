@@ -4,6 +4,7 @@ import (
 	"divvy/divvy-api/internal/api"
 	"divvy/divvy-api/internal/config"
 	"divvy/divvy-api/internal/connection"
+	"divvy/divvy-api/internal/middleware"
 	"divvy/divvy-api/internal/repository"
 	"divvy/divvy-api/internal/service"
 	"fmt"
@@ -16,6 +17,8 @@ func main() {
 	dbConnection := connection.GetDatabase(cnf.Database)
 
 	app := fiber.New()
+	app.Use(middleware.CustomLogger())
+	app.Use(middleware.CorsMiddleware())
 
 	userRepository := repository.NewUser(dbConnection)
 
@@ -23,7 +26,7 @@ func main() {
 	userService := service.NewUser(userRepository)
 
 	api.NewAuth(app, authService)
-	api.NewUser(app, userService)
+	api.NewUser(app, userService, cnf.Jwt.Key)
 
 	addr := cnf.Server.Host + ":" + cnf.Server.Port
 	fmt.Println("Server running at http://" + addr)
