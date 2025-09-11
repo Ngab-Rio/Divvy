@@ -19,6 +19,7 @@ RUN apk add --no-cache ca-certificates \
 WORKDIR /
 
 COPY --from=build_app /divvy_api /divvy_api
+COPY .env .env  
 
 EXPOSE 9000
 USER divvy
