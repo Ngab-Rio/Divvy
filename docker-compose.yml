@@ -1,6 +1,8 @@
 services:
   divvy-api:
     container_name: divvy-api
+    env_file:
+      - .env
     build: 
       context: .
       dockerfile: Dockerfile
@@ -11,6 +13,8 @@ services:
       - divvy-network
     volumes:
       - divvy-storage:/data
+    depends_on:
+      - db-divvy
   db-divvy:
     image: postgres:17.2
     container_name: db-divvy
