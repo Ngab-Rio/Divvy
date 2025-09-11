@@ -4,6 +4,7 @@ import (
 	"context"
 	"divvy/divvy-api/domain"
 	"divvy/divvy-api/dto"
+	"divvy/divvy-api/internal/util"
 	"net/http"
 	"time"
 
@@ -47,6 +48,12 @@ func (aa authApi) Register(ctx *fiber.Ctx) error {
 	var req dto.AuthRegisterRequest
 	if err := ctx.BodyParser(&req); err != nil {
 		return ctx.SendStatus(http.StatusUnprocessableEntity)
+	}
+
+	fails := util.Validate(req)
+
+	if len(fails) > 0 {
+		return ctx.Status(http.StatusBadRequest).JSON(dto.CreateResponseErrorData("validation failed", fails))
 	}
 
 	res, err := aa.authService.Register(a, req)
