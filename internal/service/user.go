@@ -4,6 +4,7 @@ import (
 	"context"
 	"divvy/divvy-api/domain"
 	"divvy/divvy-api/dto"
+	"errors"
 )
 
 type userService struct {
@@ -30,4 +31,19 @@ func (u userService) Index(ctx context.Context) ([]dto.UserResponse, error) {
 		})
 	}
 	return userData, nil
+}
+
+func (u userService) Show(ctx context.Context, id string) (dto.UserResponse, error) {
+	users, err := u.userRepository.FindById(ctx, id)
+	if err != nil {
+		return dto.UserResponse{}, err
+	}
+	if users.ID == "" {
+		return dto.UserResponse{}, errors.New("users not found")
+	}
+	return dto.UserResponse{
+		ID: users.ID,
+		Username: users.Username,
+		Email: users.Email,
+	}, nil
 }

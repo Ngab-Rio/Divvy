@@ -24,8 +24,20 @@ func (u UserRepository) FindByEmail(ctx context.Context, email string) (usr doma
 	return
 }
 
-func (u UserRepository) GetAll(ctx context.Context) (result []domain.User, err error) {
-	dataset := u.db.From("users").Where(goqu.C("id").IsNotNull())
+func (ur UserRepository) FindById(ctx context.Context, id string) (usr domain.User, err error) {
+	dataset := ur.db.From("users").Where(goqu.C("id").Eq(id))
+	_, err = dataset.ScanStructContext(ctx, &usr)
+	return
+}
+
+func (ur UserRepository) GetAll(ctx context.Context) (result []domain.User, err error) {
+	dataset := ur.db.From("users").Where(goqu.C("id").IsNotNull())
 	err = dataset.ScanStructsContext(ctx, &result)
 	return
+}
+
+func (ur UserRepository) Save(ctx context.Context, u *domain.User) error {
+	executor := ur.db.Insert("users").Rows(u).Executor()
+	_, err := executor.ExecContext(ctx)
+	return err
 }

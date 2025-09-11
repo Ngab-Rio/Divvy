@@ -17,9 +17,12 @@ type User struct {
 
 type UserRepository interface {
 	FindByEmail(ctx context.Context, email string) (User, error)
+	FindById(ctx context.Context, id string) (User, error)
 	GetAll(ctx context.Context) ([]User, error)
+	Save(ctx context.Context, u *User) error
 }
 
 type UserService interface {
 	Index(ctx context.Context) ([]dto.UserResponse, error)
+	Show(ctx context.Context, id string) (dto.UserResponse, error)
 }
