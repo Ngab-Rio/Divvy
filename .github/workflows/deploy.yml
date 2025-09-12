@@ -8,7 +8,7 @@ on:
       - main
   
 
-  
+
 jobs:
   deploy:
     name: Deploy 
@@ -28,9 +28,9 @@ jobs:
             set -e
 
             echo "Pulling Repository"
-            git config --global --add safe.directory /home/maman/Divvy
+            git config --global --add safe.directory /var/www/projects/Divvy
 
-            cd /home/maman/Divvy
+            cd /var/www/projects/Divvy
             git fetch origin 
             git reset --hard origin/main
             git clean -fd
