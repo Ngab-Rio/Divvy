@@ -1,0 +1,38 @@
+name: Divvy Deployment
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  
+jobs:
+  deploy:
+    name: Deploy 
+    runs-on: self-hosted
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Pull Repository
+        uses: action/checkout@v4
+        with:
+          path: /home/maman/Divvy
+          fetch-depth: 0
+
+      - name: Deploy
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.HOSTNAME }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: 55154
+          script:  |
+            cd /var/www/projects/Divvy
+            docker-compose down --remove-orphans
+            docker-compose up --build -d
+
+      - name: Show Logs
+        if: failure()
+        run: docker-compose logs 
