@@ -15,12 +15,6 @@ jobs:
       run:
         shell: bash
     steps:
-      - name: Pull Repository
-        uses: actions/checkout@v4
-        with:
-          path: /var/www/projects/Divvy
-          fetch-depth: 0
-
       - name: Deploy
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -28,11 +22,27 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           port: 55154
-          script:  |
-            cd /var/www/projects/Divvy
-            docker-compose down --remove-orphans
-            docker-compose up --build -d
+          script: |
+            set -e
 
+            echo "Pulling Repository"
+            git config --global --add safe.directory /home/maman/Divvy
+
+            cd /home/maman/Divvy
+            git fetch origin 
+            git reset --hard origin/main
+            git clean -fd
+            cd /var/www/projects/Divvy
+            docker-compose up --build -d
+            
       - name: Show Logs
         if: failure()
-        run: docker-compose logs 
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.HOSTNAME }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: 55154
+          script: |
+            cd /var/www/projects/Divvy
+            docker-compose logs --tail=100
