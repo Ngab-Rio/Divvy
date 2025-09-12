@@ -7,6 +7,8 @@ on:
     branches:
       - main
   
+
+  
 jobs:
   deploy:
     name: Deploy 
@@ -34,7 +36,7 @@ jobs:
             git clean -fd
             cd /var/www/projects/Divvy
             docker-compose up --build -d
-            
+
       - name: Show Logs
         if: failure()
         uses: appleboy/ssh-action@v1.0.0
