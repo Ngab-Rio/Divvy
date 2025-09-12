@@ -22,14 +22,17 @@ func main() {
 
 	userRepository := repository.NewUser(dbConnection)
 	groupRepository := repository.NewGroup(dbConnection)
+	groupMemberRepository := repository.NewGroupMember(dbConnection)
 
 	authService := service.NewAuth(cnf, userRepository)
 	userService := service.NewUser(userRepository)
 	groupService := service.NewGroup(groupRepository, userRepository)
+	groupMemberService := service.NewGroupMember(groupMemberRepository, groupRepository, userRepository)
 
 	api.NewAuth(app, authService)
 	api.NewUser(app, userService, cnf.Jwt.Key)
 	api.NewGroup(app, groupService, cnf.Jwt.Key)
+	api.NewGroupMember(app, groupMemberService, cnf.Jwt.Key)
 
 	addr := cnf.Server.Host + ":" + cnf.Server.Port
 	fmt.Println("Server running at http://" + addr)

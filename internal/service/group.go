@@ -34,6 +34,8 @@ func (g groupService) Index(ctx context.Context) ([]dto.GroupResponse, error) {
 			ID: v.ID,
 			Name: v.Name,
 			Created_by: v.Created_by,
+			Created_at: v.Created_at,
+			Updated_at: v.Updated_at,
 		})
 	}
 	return  groupData, nil
@@ -54,6 +56,8 @@ func (g groupService) IndexWithUser(ctx context.Context) ([]dto.GroupWithUserRes
 				Username: v.Username,
 				Email: v.Email,
 			},
+			Created_at: v.Created_at.Time,
+			Updated_at: v.Created_at.Time,
 		})
 	}
 
@@ -74,8 +78,8 @@ func (g groupService) Create(ctx context.Context, req dto.CreateGroupRequest, us
 		ID: uuid.NewString(),
 		Name: req.Name,
 		Created_by: userID,
-		Created_at: sql.NullTime{Valid: true, Time: time.Now()},
-		Updated_at: sql.NullTime{Valid: true, Time: time.Now()},
+		Created_at: time.Now(),
+		Updated_at: time.Now(),
 	}
 	
 	if err := g.groupRepository.Save(ctx, &group); err != nil {
@@ -95,6 +99,8 @@ func (g groupService) Create(ctx context.Context, req dto.CreateGroupRequest, us
 			Username: user.Username,
 			Email: user.Email,
 		},
+		Created_at: group.Created_at,
+		Updated_at: group.Created_at,
 	}, nil
 }
 

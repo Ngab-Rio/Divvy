@@ -1,6 +1,8 @@
 package dto
 
-import "time"
+import (
+	"time"
+)
 
 type GroupResponse struct {
 	ID         string `json:"id"`
@@ -18,4 +20,6 @@ type GroupWithUserResponse struct {
 	ID         string `json:"id"`
 	Name       string `json:"name"`
 	Created_by UserResponse `json:"created_by"`
+	Created_at time.Time `json:"created_at"`
+	Updated_at time.Time `json:"updated_at"`
 }

@@ -4,14 +4,15 @@ import (
 	"context"
 	"database/sql"
 	"divvy/divvy-api/dto"
+	"time"
 )
 
 type Group struct {
 	ID         string       `db:"id"`
 	Name       string       `db:"name"`
 	Created_by string       `db:"created_by"`
-	Created_at sql.NullTime `db:"created_at"`
-	Updated_at sql.NullTime `db:"updated_at"`
+	Created_at time.Time `db:"created_at"`
+	Updated_at time.Time `db:"updated_at"`
 }
 
 type GroupWithUser struct {
