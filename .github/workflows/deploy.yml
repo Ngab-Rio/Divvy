@@ -18,7 +18,7 @@ jobs:
       - name: Pull Repository
         uses: actions/checkout@v4
         with:
-          path: /home/maman/Divvy
+          path: /var/www/projects/Divvy
           fetch-depth: 0
 
       - name: Deploy
