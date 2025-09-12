@@ -54,7 +54,9 @@ func (gmApi groupMemberApi) Create(ctx *fiber.Ctx) error {
 		return ctx.Status(http.StatusBadRequest).JSON(dto.CreateResponseErrorData("validation failed", fails))
 	}
 
-	res, err := gmApi.groupMemberService.Create(gm, req)
+	currentuserID := ctx.Locals("user_id").(string)
+
+	res, err := gmApi.groupMemberService.Create(gm, currentuserID, req)
 	if err != nil {
 		return ctx.Status(http.StatusInternalServerError).JSON(dto.CreateResponseError(err.Error()))
 	}

@@ -42,7 +42,16 @@ func (gm *groupMemberService) Index(ctx context.Context) ([]dto.GroupMemberRespo
 	return groupMemberData, nil
 }
 
-func (gm groupMemberService) Create(ctx context.Context, req dto.CreateGroupMember) (dto.GroupMemberResponse, error) {
+func (gm *groupMemberService) Create(ctx context.Context, currentUserID string,  req dto.CreateGroupMember) (dto.GroupMemberResponse, error) {
+	group, err := gm.groupRepository.FindById(ctx, req.GroupID)
+	if err != nil {
+		return dto.GroupMemberResponse{}, err
+	}
+
+	if group.Created_by != currentUserID {
+		return dto.GroupMemberResponse{}, err
+	}
+	
 	groupMember := domain.GroupMember{
 		ID: uuid.NewString(),
 		GroupID: req.GroupID,
@@ -51,7 +60,8 @@ func (gm groupMemberService) Create(ctx context.Context, req dto.CreateGroupMemb
 		JoinedAt: time.Now(),
 	}
 
-	err := gm.groupMemberRepository.Save(ctx, &groupMember)
+	err = gm.groupMemberRepository.Save(ctx, &groupMember)
+
 	if err != nil {
 		return dto.GroupMemberResponse{}, err
 	}
