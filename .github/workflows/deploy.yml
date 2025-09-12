@@ -16,7 +16,7 @@ jobs:
         shell: bash
     steps:
       - name: Pull Repository
-        uses: action/checkout@v4
+        uses: actions/checkout@v4
         with:
           path: /home/maman/Divvy
           fetch-depth: 0
