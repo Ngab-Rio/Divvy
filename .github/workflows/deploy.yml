@@ -29,6 +29,8 @@ jobs:
 
             set -e
 
+            newgrp divvy
+            
             echo "Pulling Repository"
             git config --global --add safe.directory /var/www/projects/Divvy
 
