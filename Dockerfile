@@ -13,7 +13,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /divvy_api .
 # ---------- RUNTIME STAGE ----------
 FROM alpine:3.20
 
-RUN apk add --no-cache ca-certificates \
+RUN apk add --no-cache ca-certificates tzdata \
     && adduser -D -u 1000 divvy
 
 WORKDIR /
@@ -24,6 +24,7 @@ COPY .env .env
 EXPOSE 9000
 USER divvy
 
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 ENV TZ=Asia/Jakarta
 
 ENTRYPOINT ["/divvy_api"]
