@@ -47,6 +47,6 @@ type GroupMemberRepository interface {
 type GroupMemberService interface{
 	Index(ctx context.Context) ([]dto.GroupMemberResponse, error)
 	Create(ctx context.Context, currentUserID string , req dto.CreateGroupMember) (dto.GroupMemberResponse, error)
-	// CreateBulk(ctx context.Context, req dto.CreateGroupMembersRequest) (dto.BulkGroupMemberResponse, error)
+	CreateBulk(ctx context.Context, req dto.CreateGroupMembersRequest) (dto.BulkGroupMemberResponse, error)
 	FindByGroupID(ctx context.Context, groupID string) (dto.BulkGroupMemberResponse, error)
 }
