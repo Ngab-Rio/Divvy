@@ -27,8 +27,6 @@ jobs:
           script: |
             set -e
 
-            id
-            
             echo "Pulling Repository"
             git config --global --add safe.directory /var/www/projects/Divvy
 
