@@ -25,12 +25,11 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           port: 55154
           script: |
+
             #!/bin/bash
 
             set -e
 
-            newgrp divvy
-            
             echo "Pulling Repository"
             git config --global --add safe.directory /var/www/projects/Divvy
 
@@ -38,10 +37,9 @@ jobs:
             git fetch origin 
             git reset --hard origin/main
             git clean -fd
-            cd /var/www/projects/Divvy
 
             DIVVY_API=divvy-api
-            DIVVY_DV=db-divvy
+            DB_DIVVY=db-divvy
 
             if [ "$(docker ps -q -f name=$DIVVY_API)" ] && [ "$(docker ps -q -f name=$DB_DIVVY)" ]; then
                 echo "Kedua container ada dan sedang jalan. Restart stack..."
@@ -53,6 +51,7 @@ jobs:
                 docker-compose build
                 docker-compose up -d
             fi
+
 
             
       - name: Show Logs
