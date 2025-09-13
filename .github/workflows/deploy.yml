@@ -25,9 +25,6 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           port: 55154
           script: |
-
-            #!/bin/bash
-
             set -e
 
             echo "Pulling Repository"
