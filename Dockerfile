@@ -21,10 +21,11 @@ WORKDIR /
 COPY --from=build_app /divvy_api /divvy_api
 COPY .env .env  
 
+ENV TZ=Asia/Jakarta
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 EXPOSE 9000
 USER divvy
 
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-ENV TZ=Asia/Jakarta
 
 ENTRYPOINT ["/divvy_api"]
