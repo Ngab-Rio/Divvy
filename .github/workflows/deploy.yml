@@ -25,6 +25,8 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           port: 55154
           script: |
+            #!/bin/bash
+
             set -e
 
             echo "Pulling Repository"
@@ -35,8 +37,20 @@ jobs:
             git reset --hard origin/main
             git clean -fd
             cd /var/www/projects/Divvy
-            docker-compose down -v
-            docker-compose up --build -d
+
+            DIVVY_API=divvy-api
+            DB_DIVVY=db-divvy
+
+            if [ "$(docker ps -q -f name=$DIVVY_API)" ] && [ "$(docker ps -q -f name=$DB_DIVVY)" ]; then
+                echo "Kedua container ada dan sedang jalan. Restart stack..."
+                docker-compose down -v
+                docker-compose build
+                docker-compose up -d
+            else
+                echo "Salah satu container belum ada/jalan. Build & up biasa..."
+                docker-compose build
+                docker-compose up -d
+            fi
 
             
       - name: Show Logs
