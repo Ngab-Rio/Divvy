@@ -25,6 +25,7 @@ func NewGroupMember(app *fiber.App, groupMemberService domain.GroupMemberService
 
 	groupsMember.Get("/", gm.Index)
 	groupsMember.Post("/", gm.Create)
+	groupsMember.Get("/:id", gm.FindByGroupID)
 }
 
 func (gmApi groupMemberApi) Index(ctx *fiber.Ctx) error{
@@ -61,4 +62,17 @@ func (gmApi groupMemberApi) Create(ctx *fiber.Ctx) error {
 		return ctx.Status(http.StatusInternalServerError).JSON(dto.CreateResponseError(err.Error()))
 	}
 	return ctx.Status(http.StatusOK).JSON(dto.CreateResponseSuccess(res))
+}
+
+func (gmApi groupMemberApi) FindByGroupID(ctx *fiber.Ctx) error{
+	gm, cancel := context.WithTimeout(ctx.Context(), 10 * time.Second)
+	defer cancel()
+
+	groupID := ctx.Params("id")
+	data, err := gmApi.groupMemberService.FindByGroupID(gm, groupID)
+	if err != nil {
+		return ctx.Status(http.StatusInternalServerError).JSON(dto.CreateResponseError(err.Error()))
+	}
+	return ctx.Status(http.StatusOK).JSON(dto.CreateResponseSuccess(data))
+
 }

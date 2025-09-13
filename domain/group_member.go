@@ -36,7 +36,7 @@ type GroupMemberWithMember struct {
 
 type GroupMemberRepository interface {
 	FindById(ctx context.Context, id string) (GroupMember, error)
-	FindByGroupID(ctx context.Context, groupID string) ([]GroupMember, error)
+	FindByGroupID(ctx context.Context, groupID string) ([]GroupMemberWithMember, error)
 	GetAll(ctx context.Context) ([]GroupMember, error)
 	GetAllWithMember(ctx context.Context) ([]GroupMemberWithMember, error)
 	Save(ctx context.Context, gm *GroupMember) error
@@ -47,5 +47,6 @@ type GroupMemberRepository interface {
 type GroupMemberService interface{
 	Index(ctx context.Context) ([]dto.GroupMemberResponse, error)
 	Create(ctx context.Context, currentUserID string , req dto.CreateGroupMember) (dto.GroupMemberResponse, error)
-	CreateBulk(ctx context.Context, req dto.CreateGroupMembersRequest) (dto.BulkGroupMemberResponse, error)
+	// CreateBulk(ctx context.Context, req dto.CreateGroupMembersRequest) (dto.BulkGroupMemberResponse, error)
+	FindByGroupID(ctx context.Context, groupID string) (dto.BulkGroupMemberResponse, error)
 }

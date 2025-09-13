@@ -26,9 +26,24 @@ func (gm GroupMemberRepository) FindById(ctx context.Context, id string) (result
 	return
 }
 
-func (gm GroupMemberRepository) FindByGroupID(ctx context.Context, groupID string) (result []domain.GroupMember, err error) {
-	dataset := gm.db.From("group_members").Where(goqu.C("group_id").Eq(groupID))
-	_, err = dataset.ScanStructContext(ctx, &result)
+func (gm GroupMemberRepository) FindByGroupID(ctx context.Context, groupID string) (result []domain.GroupMemberWithMember, err error) {
+	dataset := gm.db.From("group_members").Select(
+		goqu.I("group_members.id").As("group_member_id"),
+		goqu.I("group_members.group_id"),
+		goqu.I("groups.name").As("group_name"),
+		goqu.I("users.id").As("user_id"),
+		goqu.I("users.username"),
+		goqu.I("users.email"),
+		goqu.I("group_members.role"),
+		goqu.I("group_members.joined_at"),
+	).Join(
+		goqu.T("users"),
+		goqu.On(goqu.I("group_members.user_id").Eq(goqu.I("users.id"))),
+	).Join(
+		goqu.T("groups"),
+		goqu.On(goqu.I("group_members.group_id").Eq(goqu.I("groups.id"))),
+	).Where(goqu.Ex{"group_members.group_id":groupID})
+	err = dataset.ScanStructsContext(ctx, &result)
 	return
 }
 
@@ -40,7 +55,7 @@ func (gm GroupMemberRepository) GetAll(ctx context.Context) (result []domain.Gro
 
 func (gm GroupMemberRepository) GetAllWithMember(ctx context.Context) (result []domain.GroupMemberWithMember, err error) {
 	dataset := gm.db.From("group_members").Select(
-		goqu.I("group_members_id").As("group_member_id"),
+		goqu.I("group_members.id").As("group_member_id"),
 		goqu.I("group_members.group_id"),
 		goqu.I("groups.name").As("group_name"),
 		goqu.I("users.id").As("user_id"),

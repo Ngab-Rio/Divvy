@@ -24,22 +24,26 @@ func NewGroupMember(groupMemberRepository domain.GroupMemberRepository, groupRep
 }
 
 func (gm *groupMemberService) Index(ctx context.Context) ([]dto.GroupMemberResponse, error) {
-	groupMember, err := gm.groupMemberRepository.GetAll(ctx)
+	members, err := gm.groupMemberRepository.GetAllWithMember(ctx)
 	if err != nil {
 		return nil, err
 	}
-	var groupMemberData []dto.GroupMemberResponse
-	for _, v := range groupMember {
-		groupMemberData = append(groupMemberData, dto.GroupMemberResponse{
-			ID: v.ID,
-			GroupID: v.GroupID,
-			UserID: v.UserID,
-			Role: string(v.Role),
-			JoinedAt: v.JoinedAt,
+
+	responses := make([]dto.GroupMemberResponse, 0, len(members))
+	for _, m := range members {
+		responses = append(responses, dto.GroupMemberResponse{
+			ID: m.GroupMemberID,
+			GroupID: m.GroupID,
+			GroupName: m.GroupName,
+			UserID: m.UserID,
+			Username: m.Username,
+			Email: m.Email,
+			Role: string(m.Role),
+			JoinedAt: m.JoinedAt,
 		})
 	}
 
-	return groupMemberData, nil
+	return responses, nil
 }
 
 func (gm *groupMemberService) Create(ctx context.Context, currentUserID string,  req dto.CreateGroupMember) (dto.GroupMemberResponse, error) {
@@ -48,6 +52,11 @@ func (gm *groupMemberService) Create(ctx context.Context, currentUserID string, 
 		return dto.GroupMemberResponse{}, err
 	}
 
+	user, err := gm.userRepository.FindById(ctx, currentUserID)
+	if err != nil {
+		return dto.GroupMemberResponse{}, err
+	}
+	
 	if group.Created_by != currentUserID {
 		return dto.GroupMemberResponse{}, err
 	}
@@ -69,7 +78,10 @@ func (gm *groupMemberService) Create(ctx context.Context, currentUserID string, 
 	resp := dto.GroupMemberResponse{
 		ID: groupMember.ID,
 		GroupID: groupMember.GroupID,
+		GroupName: group.Name,
 		UserID: groupMember.UserID,
+		Username: user.Username,
+		Email: user.Email,
 		Role: string(groupMember.Role),
 		JoinedAt: groupMember.JoinedAt,
 	}
@@ -118,5 +130,31 @@ func (gm *groupMemberService) CreateBulk(ctx context.Context, req dto.CreateGrou
 	return dto.BulkGroupMemberResponse{
 		GroupID: req.GroupID,
 		Members: members,
+	}, nil
+}
+
+func (gm *groupMemberService) FindByGroupID(ctx context.Context, groupID string) (dto.BulkGroupMemberResponse, error) {
+	members, err := gm.groupMemberRepository.FindByGroupID(ctx, groupID)
+	if err != nil {
+		return dto.BulkGroupMemberResponse{}, err
+	}
+
+	responses := make([]dto.GroupMemberResponse, 0, len(members))
+	for _, m := range members{
+		responses = append(responses, dto.GroupMemberResponse{
+			ID: m.GroupMemberID,
+			GroupID: m.GroupID,
+			GroupName: m.GroupName,
+			UserID: m.UserID,
+			Username: m.Username,
+			Email: m.Email,
+			Role: string(m.Role),
+			JoinedAt: m.JoinedAt,	
+		})
+	}
+
+	return dto.BulkGroupMemberResponse{
+		GroupID: groupID,
+		Members: responses,
 	}, nil
 }

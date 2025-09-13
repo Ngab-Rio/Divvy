@@ -5,10 +5,13 @@ import (
 )
 
 type GroupMemberResponse struct {
-	ID                     string `json:"id"`
-	GroupID                string `json:"group_id"`
-	UserID                 string `json:"user_id"`
-	Role                   string `json:"role"`
+	ID                     	string `json:"id"`
+	GroupID                	string `json:"group_id"`
+	GroupName 				string `json:"group_name"`
+	UserID                 	string `json:"user_id"`
+	Username               	string `json:"username"`
+	Email 					string `json:"email"`
+	Role                   	string `json:"role"`
 	JoinedAt time.Time `json:"joined_at"`
 }
 
