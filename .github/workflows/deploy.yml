@@ -39,7 +39,7 @@ jobs:
             cd /var/www/projects/Divvy
 
             DIVVY_API=divvy-api
-            DB_DIVVY=db-divvy
+            DIVVY_DV=db-divvy
 
             if [ "$(docker ps -q -f name=$DIVVY_API)" ] && [ "$(docker ps -q -f name=$DB_DIVVY)" ]; then
                 echo "Kedua container ada dan sedang jalan. Restart stack..."
