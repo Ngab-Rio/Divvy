@@ -26,17 +26,32 @@ jobs:
           port: 55154
           script: |
             set -e
+            
+            DIVVY_API=divvy-api
+            DB_DIVVY=db-divvy
+            
+            if [ ! -d "${{ secrets.PROJECT_DIRECTORY }}/Divvy" ]; then
+                cd ${{ secrets.PROJECT_DIRECTORY }}
+                git clone https://github.com/Ngab-Rio/Divvy 
+            else
+                cd ${{ secrets.PROJECT_DIRECTORY }}/Divvy
+                git fetch origin 
+                git reset --hard origin/main
+                git clean -fd
+            fi
 
-            echo "Pulling Repository"
-            git config --global --add safe.directory /var/www/projects/Divvy
 
-            cd /var/www/projects/Divvy
-            git fetch origin 
-            git reset --hard origin/main
-            git clean -fd
-            cd /var/www/projects/Divvy
-            docker-compose down -v
-            docker-compose up --build -d
+            if [ "$(docker ps -q -f name=$DIVVY_API)" ] && [ "$(docker ps -q -f name=$DB_DIVVY)" ]; then
+                echo "Kedua container ada dan sedang jalan. Restart stack..."
+                docker-compose down -v
+                docker-compose build
+                docker-compose up -d
+            else
+                echo "Salah satu container belum ada/jalan. Build & up biasa..."
+                docker-compose build
+                docker-compose up -d
+            fi
+
 
             
       - name: Show Logs
