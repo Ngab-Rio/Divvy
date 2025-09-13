@@ -24,4 +24,6 @@ COPY .env .env
 EXPOSE 9000
 USER divvy
 
+ENV TZ=Asia/Jakarta
+
 ENTRYPOINT ["/divvy_api"]
