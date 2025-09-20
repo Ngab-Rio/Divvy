@@ -16,6 +16,9 @@ jobs:
       run:
         shell: bash
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Setup Docker build
         uses: docker/setup-buildx-action@v2
 
