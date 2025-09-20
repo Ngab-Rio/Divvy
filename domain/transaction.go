@@ -20,24 +20,43 @@ const (
 )
 
 type Transaction struct {
-	ID          string  `db:"id"`
-	GroupID     string  `db:"group_id"`
-	CreatedBy  string  `db:"created_by"`
-	PaidBy     string  `db:"paid_by"`
-	Amount      float64 `db:"amount"`
+	ID          string  	`db:"id"`
+	GroupID     string  	`db:"group_id"`
+	CreatedBy  	string  	`db:"created_by"`
+	PaidBy    	string  	`db:"paid_by"`
+	Amount      float64 		`db:"amount"`
 	Description sql.NullString `db:"description"`
-	Date time.Time `db:"date"`
-	Type TransactionType `db:"type"`
-	Source TransactionSource `db:"source"`
+	Date 		time.Time `db:"date"`
+	Type 		TransactionType `db:"type"`
+	Source 		TransactionSource `db:"source"`
 	ExternalRef sql.NullString `db:"external_ref"`
-	CreatedAt time.Time `db:"created_at"`
-	UpdatedAt time.Time `db:"updated_at"`
+	CreatedAt 	time.Time `db:"created_at"`
+	UpdatedAt 	time.Time `db:"updated_at"`
 }
 
+type TransactionWithDetails struct {
+    ID            string            `db:"id"`
+    GroupID       string            `db:"group_id"`
+    GroupName     string            `db:"group_name"`
+    CreatedBy     string            `db:"created_by"`
+    CreatedByName string            `db:"created_by_name"`
+    PaidBy        string            `db:"paid_by"`
+    PaidByName    string            `db:"paid_by_name"`
+    Amount        float64           `db:"amount"`
+    Description   sql.NullString    `db:"description"`
+    Date          time.Time         `db:"date"`
+    Type          TransactionType   `db:"type"`
+    Source        TransactionSource `db:"source"`
+    ExternalRef   sql.NullString    `db:"external_ref"`
+    CreatedAt     time.Time         `db:"created_at"`
+    UpdatedAt     time.Time         `db:"updated_at"`
+}
+
+
 type TransactionRepository interface {
-	FindByID(ctx context.Context, id string) (Transaction, error)
-	FindByGroupID(ctx context.Context, groupID string) ([]Transaction, error)
-	GetAll(ctx context.Context) ([]Transaction, error)
+	FindByID(ctx context.Context, id string) (TransactionWithDetails, error)
+	FindByGroupID(ctx context.Context, groupID string) ([]TransactionWithDetails, error)
+	GetAll(ctx context.Context) ([]TransactionWithDetails, error)
 	Save(ctx context.Context, tx *Transaction) error
 	Update(ctx context.Context, tx *Transaction) error
 	Delete(ctx context.Context, id string) error
