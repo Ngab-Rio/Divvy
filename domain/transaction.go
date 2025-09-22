@@ -3,6 +3,7 @@ package domain
 import (
 	"context"
 	"database/sql"
+	"divvy/divvy-api/dto"
 	"time"
 )
 
@@ -70,16 +71,16 @@ type TransactionRepository interface {
 }
 
 type TransactionService interface {
-	Index(ctx context.Context) ([]Transaction, error)
-	Create(ctx context.Context, req Transaction) (Transaction, error)
-	Update(ctx context.Context, id string, req Transaction) (Transaction, error)
+	Index(ctx context.Context) ([]dto.TransactionResponse, error)
+	Show(ctx context.Context, id string) (dto.TransactionResponse, error)
+	Create(ctx context.Context, req dto.CreateTransactionRequest, currentUserID string) (dto.TransactionResponse, error)
+	Update(ctx context.Context, id string, req dto.UpdateTransactionRequest) (dto.TransactionResponse, error)
 	Delete(ctx context.Context, id string) error
-	Show(ctx context.Context, id string) (Transaction, error)
 
-	GetByGroup(ctx context.Context, groupID string) ([]Transaction, error)
-	GetByDateRange(ctx context.Context, groupID string, start, end time.Time) ([]Transaction, error)
-	GetByType(ctx context.Context, groupID string, tType TransactionType) ([]Transaction, error)
-	GetBySource(ctx context.Context, groupID string, source TransactionSource) ([]Transaction, error)
+	GetByGroup(ctx context.Context, groupID string) ([]dto.TransactionResponse, error)
+	GetByDateRange(ctx context.Context, groupID string, start, end time.Time) ([] dto.TransactionResponse, error)
+	GetByType(ctx context.Context, groupID string, tType TransactionType) ([] dto.TransactionResponse, error)
+	GetBySource(ctx context.Context, groupID string, source TransactionSource) ([] dto.TransactionResponse, error)
 
 	CalculateGroupBalance(ctx context.Context, groupID string) (float64, error)
 }
