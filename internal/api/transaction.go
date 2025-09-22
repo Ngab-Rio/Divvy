@@ -24,6 +24,7 @@ func NewTransaction(app *fiber.App, transactionService domain.TransactionService
 	transaction := app.Group("/transaction", middleware.JWTProtected(secret))
 
 	transaction.Get("/", t.Index)
+	transaction.Get("/:id", t.Show)
 	transaction.Post("/", t.Create)
 }
 
@@ -61,4 +62,17 @@ func (ta transactionApi) Create(ctx *fiber.Ctx) error {
 		return ctx.Status(http.StatusInternalServerError).JSON(dto.CreateResponseError(err.Error()))
 	}
 	return ctx.Status(http.StatusOK).JSON(dto.CreateResponseSuccess(res))
+}
+
+func(ta transactionApi) Show(ctx *fiber.Ctx) error {
+	t, cancel := context.WithTimeout(ctx.Context(), 10 * time.Second)
+	defer cancel()
+
+	id := ctx.Params("id")
+
+	res, err := ta.transactionService.Show(t, id)
+	if err != nil {
+		return ctx.Status(http.StatusInternalServerError).JSON(dto.CreateResponseError(err.Error()))
+	}
+	return ctx.JSON(dto.CreateResponseSuccess(res))
 }

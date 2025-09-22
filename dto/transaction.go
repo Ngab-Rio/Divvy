@@ -3,7 +3,7 @@ package dto
 import "time"
 
 type CreateTransactionRequest struct {
-	GroupID     string  `json:"group_id" validate:"required"`
+	GroupID     *string  `json:"group_id,omitempty"`
 	CreatedBy   string  `json:"created_by" validate:"required"`
 	PaidBy      string  `json:"paid_by" validate:"required"`
 	Amount      float64 `json:"amount" validate:"required"`
@@ -26,7 +26,7 @@ type UpdateTransactionRequest struct{
 
 type TransactionResponse struct {
 	ID string `json:"id"`
-	GroupID string `json:"group_id"`
+	GroupID *string `json:"group_id,omitempty"`
 	GroupName string `json:"group_name,omitempty"`
 	CreatedBy string `json:"created_by"`
 	CreatedByName string `json:"created_by_name,omitempty"`

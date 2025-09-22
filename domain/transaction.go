@@ -21,24 +21,24 @@ const (
 )
 
 type Transaction struct {
-	ID          string  	`db:"id"`
-	GroupID     string  	`db:"group_id"`
-	CreatedBy  	string  	`db:"created_by"`
-	PaidBy    	string  	`db:"paid_by"`
-	Amount      float64 		`db:"amount"`
-	Description sql.NullString `db:"description"`
-	Date 		time.Time `db:"date"`
-	Type 		TransactionType `db:"type"`
-	Source 		TransactionSource `db:"source"`
-	ExternalRef sql.NullString `db:"external_ref"`
-	CreatedAt 	time.Time `db:"created_at"`
-	UpdatedAt 	time.Time `db:"updated_at"`
+	ID          string  			`db:"id"`
+	GroupID     sql.NullString  	`db:"group_id"`
+	CreatedBy  	string  			`db:"created_by"`
+	PaidBy    	string  			`db:"paid_by"`
+	Amount      float64 			`db:"amount"`
+	Description sql.NullString 		`db:"description"`
+	Date 		time.Time 			`db:"date"`
+	Type 		TransactionType 	`db:"type"`
+	Source 		TransactionSource 	`db:"source"`
+	ExternalRef sql.NullString 		`db:"external_ref"`
+	CreatedAt 	time.Time 			`db:"created_at"`
+	UpdatedAt 	time.Time 			`db:"updated_at"`
 }
 
 type TransactionWithDetails struct {
     ID            string            `db:"id"`
-    GroupID       string            `db:"group_id"`
-    GroupName     string            `db:"group_name"`
+    GroupID       sql.NullString    `db:"group_id"`
+    GroupName     sql.NullString    `db:"group_name"`
     CreatedBy     string            `db:"created_by"`
     CreatedByName string            `db:"created_by_name"`
     PaidBy        string            `db:"paid_by"`

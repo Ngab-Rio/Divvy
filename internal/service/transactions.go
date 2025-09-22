@@ -35,7 +35,7 @@ func (t *transactionService) Create(ctx context.Context, req dto.CreateTransacti
 
 	tx := domain.Transaction{
 		ID: uuid.NewString(),
-		GroupID: req.GroupID,
+		GroupID: sqlNullStringPtr(req.GroupID),
 		CreatedBy: currentUserID,
 		PaidBy: req.PaidBy,
 		Amount: req.Amount,
@@ -97,7 +97,11 @@ func (t *transactionService) Index(ctx context.Context) ([]dto.TransactionRespon
 
 // Show implements domain.TransactionService.
 func (t *transactionService) Show(ctx context.Context, id string) (dto.TransactionResponse, error) {
-	panic("unimplemented")
+	tx, err := t.transactionRepository.FindByID(ctx, id)
+	if err != nil {
+		return dto.TransactionResponse{}, err
+	}
+	return toTransactionWithDeatailResponse(tx), nil
 }
 
 // Update implements domain.TransactionService.
@@ -106,9 +110,14 @@ func (t *transactionService) Update(ctx context.Context, id string, req dto.Upda
 }
 
 func toTransactionResponse(t domain.Transaction) dto.TransactionResponse {
+	var groupID *string
+	if t.GroupID.Valid {
+		groupID = &t.GroupID.String
+	}
+
 	return dto.TransactionResponse{
 		ID:          t.ID,
-		GroupID:     t.GroupID,
+		GroupID:     groupID,
 		CreatedBy:   t.CreatedBy,
 		PaidBy:      t.PaidBy,
 		Amount:      t.Amount,
@@ -122,10 +131,15 @@ func toTransactionResponse(t domain.Transaction) dto.TransactionResponse {
 	}
 }
 func toTransactionWithDeatailResponse(t domain.TransactionWithDetails) dto.TransactionResponse {
+	var groupID *string
+	if t.GroupID.Valid {
+		groupID = &t.GroupID.String
+	}
+	
 	return dto.TransactionResponse{
 		ID:          t.ID,
-		GroupID:     t.GroupID,
-		GroupName: t.GroupName,
+		GroupID:     groupID,
+		GroupName: 	t.GroupName.String,
 		CreatedBy:   t.CreatedBy,
 		CreatedByName: t.CreatedByName,
 		PaidBy:      t.PaidBy,
@@ -154,4 +168,11 @@ func sqlNullString(s string) sql.NullString {
 		return sql.NullString{Valid: false}
 	}
 	return sql.NullString{String: s, Valid: true}
+}
+
+func sqlNullStringPtr(s *string) sql.NullString {
+	if s != nil {
+		return sql.NullString{String: *s, Valid: true}
+	}
+	return sql.NullString{}
 }
