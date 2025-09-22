@@ -47,6 +47,23 @@ jobs:
           script: |
             set -e
             
+            cd ${{ secrets.PROJECT_DIRECTORY }}/Divvy
+
+            cat > .env <<EOF
+            SERVER_HOST=${{ secrets.SERVER_HOST }}
+            SERVER_PORT=${{ secrets.SERVER_PORT }}
+
+            DB_HOST=${{ secrets.DB_HOST }}
+            DB_PORT=${{ secrets.DB_PORT }}
+            DB_NAME=${{ secrets.DB_NAME }}
+            DB_USER=${{ secrets.DB_USER }}
+            DB_PASS=${{ secrets.DB_PASS }}
+            DB_TZ=${{ secrets.DB_TZ }}
+
+            JWT_KEY=${{ secrets.JWT_KEY }}
+            JWT_EXP=${{ secrets.JWT_EXP }}
+            EOF
+
             DIVVY_API=divvy-api
             DB_DIVVY=db-divvy
 
