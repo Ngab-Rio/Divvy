@@ -12,6 +12,7 @@ services:
     networks:
       - divvy-network
     volumes:
+      - ./.env:/app/.env
       - divvy-storage:/data
     depends_on:
       - db-divvy
