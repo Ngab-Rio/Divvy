@@ -24,18 +24,21 @@ func main() {
 	groupRepository := repository.NewGroup(dbConnection)
 	groupMemberRepository := repository.NewGroupMember(dbConnection)
 	transactionRepository := repository.NewTransaction(dbConnection)
+	walletRepository := repository.NewWallet(dbConnection)
 
 	authService := service.NewAuth(cnf, userRepository)
 	userService := service.NewUser(userRepository)
 	groupService := service.NewGroup(groupRepository, userRepository)
 	groupMemberService := service.NewGroupMember(groupMemberRepository, groupRepository, userRepository)
 	transactionService := service.NewTransaction(transactionRepository)
+	walletService := service.NewWallet(walletRepository)
 
 	api.NewAuth(app, authService)
 	api.NewUser(app, userService, cnf.Jwt.Key)
 	api.NewGroup(app, groupService, cnf.Jwt.Key)
 	api.NewGroupMember(app, groupMemberService, cnf.Jwt.Key)
 	api.NewTransaction(app, transactionService, cnf.Jwt.Key)
+	api.NewWallet(app, walletService, cnf.Jwt.Key)
 
 	addr := cnf.Server.Host + ":" + cnf.Server.Port
 	fmt.Println("Server running at http://" + addr)

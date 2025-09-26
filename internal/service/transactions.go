@@ -155,13 +155,13 @@ func toTransactionWithDeatailResponse(t domain.TransactionWithDetails) dto.Trans
 	}
 }
 
-func mapTransactions(txs []domain.TransactionWithDetails) []dto.TransactionResponse {
-	responses := make([]dto.TransactionResponse, 0, len(txs))
-	for _, t := range txs {
-		responses = append(responses, toTransactionWithDeatailResponse(t))
-	}
-	return responses
-}
+// func mapTransactions(txs []domain.TransactionWithDetails) []dto.TransactionResponse {
+// 	responses := make([]dto.TransactionResponse, 0, len(txs))
+// 	for _, t := range txs {
+// 		responses = append(responses, toTransactionWithDeatailResponse(t))
+// 	}
+// 	return responses
+// }
 
 func sqlNullString(s string) sql.NullString {
 	if s == "" {
