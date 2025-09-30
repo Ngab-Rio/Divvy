@@ -56,6 +56,7 @@ type TransactionWithDetails struct {
 
 type TransactionRepository interface {
 	FindByID(ctx context.Context, id string) (TransactionWithDetails, error)
+	FindByIDRaw(ctx context.Context, id string) (Transaction, error)
 	FindByGroupID(ctx context.Context, groupID string) ([]TransactionWithDetails, error)
 	GetAll(ctx context.Context) ([]TransactionWithDetails, error)
 	Save(ctx context.Context, tx *Transaction) error

@@ -26,6 +26,7 @@ func NewTransaction(app *fiber.App, transactionService domain.TransactionService
 	transaction.Get("/", t.Index)
 	transaction.Get("/:id", t.Show)
 	transaction.Post("/", t.Create)
+	transaction.Put("/:id", t.updateTransaction)
 }
 
 func (ta transactionApi) Index(ctx *fiber.Ctx) error{
@@ -75,4 +76,29 @@ func(ta transactionApi) Show(ctx *fiber.Ctx) error {
 		return ctx.Status(http.StatusInternalServerError).JSON(dto.CreateResponseError(err.Error()))
 	}
 	return ctx.JSON(dto.CreateResponseSuccess(res))
+}
+
+func(ta transactionApi) updateTransaction(ctx *fiber.Ctx) error {
+	t, cancel := context.WithTimeout(ctx.Context(), time.Second * 10)
+	defer cancel()
+
+	var req dto.UpdateTransactionRequest
+	if err := ctx.BodyParser(&req); err != nil {
+		return ctx.SendStatus(http.StatusUnprocessableEntity)
+	}
+
+	fails := util.Validate(req)
+
+	if len(fails) > 0 {
+		return ctx.Status(http.StatusBadRequest).JSON(dto.CreateResponseErrorData("validation failed", fails))
+	}
+
+	id := ctx.Params("id")
+
+
+	res, err := ta.transactionService.Update(t, id, req)
+	if err != nil {
+		return ctx.Status(http.StatusInternalServerError).JSON(dto.CreateResponseError(err.Error()))
+	}
+	return ctx.Status(http.StatusOK).JSON(dto.CreateResponseSuccess(res))
 }

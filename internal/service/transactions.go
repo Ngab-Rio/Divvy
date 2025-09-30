@@ -15,7 +15,6 @@ type transactionService struct {
 	transactionRepository domain.TransactionRepository
 }
 
-
 func NewTransaction(transactionRepository domain.TransactionRepository) domain.TransactionService {
 	return &transactionService{
 		transactionRepository: transactionRepository,
@@ -34,18 +33,18 @@ func (t *transactionService) Create(ctx context.Context, req dto.CreateTransacti
 	}
 
 	tx := domain.Transaction{
-		ID: uuid.NewString(),
-		GroupID: sqlNullStringPtr(req.GroupID),
-		CreatedBy: currentUserID,
-		PaidBy: req.PaidBy,
-		Amount: req.Amount,
+		ID:          uuid.NewString(),
+		GroupID:     sqlNullStringPtr(req.GroupID),
+		CreatedBy:   currentUserID,
+		PaidBy:      req.PaidBy,
+		Amount:      req.Amount,
 		Description: sqlNullString(req.Description),
-		Date: req.Date,
-		Type: domain.TransactionType(req.Type),
-		Source: domain.TransactionSource(req.Source),
+		Date:        time.Now(),
+		Type:        domain.TransactionType(req.Type),
+		Source:      domain.TransactionSource(req.Source),
 		ExternalRef: sqlNullString(req.ExternalRef),
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
 	}
 
 	if err := t.transactionRepository.Save(ctx, &tx); err != nil {
@@ -87,7 +86,7 @@ func (t *transactionService) Index(ctx context.Context) ([]dto.TransactionRespon
 		return nil, err
 	}
 
-	responses := make([] dto.TransactionResponse, 0, len(txs))
+	responses := make([]dto.TransactionResponse, 0, len(txs))
 	for _, t := range txs {
 		responses = append(responses, toTransactionWithDeatailResponse(t))
 	}
@@ -106,7 +105,42 @@ func (t *transactionService) Show(ctx context.Context, id string) (dto.Transacti
 
 // Update implements domain.TransactionService.
 func (t *transactionService) Update(ctx context.Context, id string, req dto.UpdateTransactionRequest) (dto.TransactionResponse, error) {
-	panic("unimplemented")
+	existing, err := t.transactionRepository.FindByIDRaw(ctx, id)
+	if err != nil {
+		return dto.TransactionResponse{}, err
+	}
+
+	if req.Amount != nil {
+		existing.Amount = *req.Amount
+	}
+
+	if req.Description != nil {
+		existing.Description = sqlNullString(*req.Description)
+	}
+
+	if req.Date != nil {
+		existing.Date = *req.Date
+	}
+
+	if req.Type != nil {
+		existing.Type = domain.TransactionType(*req.Type)
+	}
+
+	if req.Source != nil {
+		existing.Source = domain.TransactionSource(*req.Source)
+	}
+
+	if req.ExternalRef != nil {
+		existing.ExternalRef = sqlNullString(*req.ExternalRef)
+	}
+
+	existing.UpdatedAt = time.Now()
+
+	if err := t.transactionRepository.Update(ctx, &existing); err != nil {
+		return dto.TransactionResponse{}, err
+	}
+
+	return toTransactionResponse(existing), nil
 }
 
 func toTransactionResponse(t domain.Transaction) dto.TransactionResponse {
@@ -135,23 +169,23 @@ func toTransactionWithDeatailResponse(t domain.TransactionWithDetails) dto.Trans
 	if t.GroupID.Valid {
 		groupID = &t.GroupID.String
 	}
-	
+
 	return dto.TransactionResponse{
-		ID:          t.ID,
-		GroupID:     groupID,
-		GroupName: 	t.GroupName.String,
-		CreatedBy:   t.CreatedBy,
+		ID:            t.ID,
+		GroupID:       groupID,
+		GroupName:     t.GroupName.String,
+		CreatedBy:     t.CreatedBy,
 		CreatedByName: t.CreatedByName,
-		PaidBy:      t.PaidBy,
-		PaidByName: t.PaidByName,
-		Amount:      t.Amount,
-		Description: t.Description.String,
-		Date:        t.Date,
-		Type:        string(t.Type),
-		Source:      string(t.Source),
-		ExternalRef: t.ExternalRef.String,
-		CreatedAt:   t.CreatedAt,
-		UpdatedAt:   t.UpdatedAt,
+		PaidBy:        t.PaidBy,
+		PaidByName:    t.PaidByName,
+		Amount:        t.Amount,
+		Description:   t.Description.String,
+		Date:          t.Date,
+		Type:          string(t.Type),
+		Source:        string(t.Source),
+		ExternalRef:   t.ExternalRef.String,
+		CreatedAt:     t.CreatedAt,
+		UpdatedAt:     t.UpdatedAt,
 	}
 }
 
