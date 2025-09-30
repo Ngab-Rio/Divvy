@@ -56,7 +56,11 @@ func (t *transactionService) Create(ctx context.Context, req dto.CreateTransacti
 
 // Delete implements domain.TransactionService.
 func (t *transactionService) Delete(ctx context.Context, id string) error {
-	panic("unimplemented")
+	existing, err := t.transactionRepository.FindByID(ctx, id)
+	if err != nil {return err}
+	if existing.ID == "" {return errors.New("transaction not found")}
+
+	return  t.transactionRepository.Delete(ctx, id)
 }
 
 // GetByDateRange implements domain.TransactionService.
@@ -66,7 +70,16 @@ func (t *transactionService) GetByDateRange(ctx context.Context, groupID string,
 
 // GetByGroup implements domain.TransactionService.
 func (t *transactionService) GetByGroup(ctx context.Context, groupID string) ([]dto.TransactionResponse, error) {
-	panic("unimplemented")
+	txs, err := t.transactionRepository.FindByGroupID(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
+
+	responses := make([]dto.TransactionResponse, 0, len(txs))
+	for _, t := range txs {
+		responses = append(responses, toTransactionWithDeatailResponse(t))
+	}
+	return  responses, nil
 }
 
 // GetBySource implements domain.TransactionService.

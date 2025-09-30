@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"divvy/divvy-api/domain"
+	"fmt"
 	"time"
 
 	"github.com/doug-martin/goqu/v9"
@@ -76,10 +77,14 @@ func (r *TransactionRepository) FindByGroupID(ctx context.Context, groupID strin
 			goqu.I("transactions.created_at"),
 			goqu.I("transactions.updated_at"),
 		).
-		Join(goqu.T("groups"), goqu.On(goqu.Ex{"transactions.group_id": goqu.I("groups.id")})).
-		Join(goqu.T("users").As("creator"), goqu.On(goqu.Ex{"transactions.created_by": goqu.I("creator.id")})).
-		Join(goqu.T("users").As("payer"), goqu.On(goqu.Ex{"transactions.paid_by": goqu.I("payer.id")})).
+		LeftJoin(goqu.T("groups"), goqu.On(goqu.Ex{"transactions.group_id": goqu.I("groups.id")})).
+		LeftJoin(goqu.T("users").As("creator"), goqu.On(goqu.Ex{"transactions.created_by": goqu.I("creator.id")})).
+		LeftJoin(goqu.T("users").As("payer"), goqu.On(goqu.Ex{"transactions.paid_by": goqu.I("payer.id")})).
 		Where(goqu.Ex{"transactions.group_id": groupID})
+	sql, args, _ := dataset.ToSQL()
+	fmt.Println("SQL QUERY:", sql)
+	fmt.Println("ARGS:", args)
+
 	err = dataset.ScanStructsContext(ctx, &tx)
 	return
 }

@@ -25,8 +25,10 @@ func NewTransaction(app *fiber.App, transactionService domain.TransactionService
 
 	transaction.Get("/", t.Index)
 	transaction.Get("/:id", t.Show)
+	transaction.Get("/group/:id", t.getByGroupID)
 	transaction.Post("/", t.Create)
 	transaction.Put("/:id", t.updateTransaction)
+	transaction.Delete("/:id", t.Delete)
 }
 
 func (ta transactionApi) Index(ctx *fiber.Ctx) error{
@@ -78,6 +80,19 @@ func(ta transactionApi) Show(ctx *fiber.Ctx) error {
 	return ctx.JSON(dto.CreateResponseSuccess(res))
 }
 
+func(ta transactionApi) getByGroupID(ctx *fiber.Ctx) error {
+	t, cancel := context.WithTimeout(ctx.Context(), time.Second * 10)
+	defer cancel()
+
+	groupID := ctx.Params("id")
+	
+	res, err := ta.transactionService.GetByGroup(t, groupID)
+	if err != nil {
+		return ctx.Status(http.StatusInternalServerError).JSON(dto.CreateResponseError(err.Error()))
+	}
+	return ctx.JSON(dto.CreateResponseSuccess(res))
+}
+
 func(ta transactionApi) updateTransaction(ctx *fiber.Ctx) error {
 	t, cancel := context.WithTimeout(ctx.Context(), time.Second * 10)
 	defer cancel()
@@ -101,4 +116,16 @@ func(ta transactionApi) updateTransaction(ctx *fiber.Ctx) error {
 		return ctx.Status(http.StatusInternalServerError).JSON(dto.CreateResponseError(err.Error()))
 	}
 	return ctx.Status(http.StatusOK).JSON(dto.CreateResponseSuccess(res))
+}
+
+func(ta transactionApi) Delete(ctx *fiber.Ctx) error {
+	t, cancel := context.WithTimeout(ctx.Context(), time.Second * 10)
+	defer cancel()
+
+	id := ctx.Params("id")
+	err := ta.transactionService.Delete(t, id)
+	if err != nil {
+		return ctx.Status(http.StatusInternalServerError).JSON(dto.CreateResponseError(err.Error()))
+	}
+	return ctx.SendStatus(http.StatusNoContent)
 }
