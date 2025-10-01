@@ -158,6 +158,8 @@ func (r *TransactionRepository) Save(ctx context.Context, tx *domain.Transaction
 // SaveTx implements domain.TransactionRepository.
 func (r *TransactionRepository) SaveTx(ctx context.Context, sqlTx *sql.Tx, tx *domain.Transaction) error {
 	query, args, _ := r.db.Insert("transactions").Rows(tx).ToSQL()
+	fmt.Println("QUERY:", query)
+	fmt.Println("ARGS:", args)
 	_, err := sqlTx.ExecContext(ctx, query, args...)
 	return err
 }

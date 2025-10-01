@@ -8,16 +8,21 @@ import (
 	"errors"
 	"time"
 
+	"github.com/doug-martin/goqu/v9"
 	"github.com/google/uuid"
 )
 
 type transactionService struct {
 	transactionRepository domain.TransactionRepository
+	walletRepository      domain.WalletRepository
+	db                    *goqu.Database
 }
 
-func NewTransaction(transactionRepository domain.TransactionRepository) domain.TransactionService {
+func NewTransaction(transactionRepository domain.TransactionRepository, walletRepository domain.WalletRepository, db *goqu.Database) domain.TransactionService {
 	return &transactionService{
 		transactionRepository: transactionRepository,
+		walletRepository:      walletRepository,
+		db: db,
 	}
 }
 
@@ -28,13 +33,40 @@ func (t *transactionService) CalculateGroupBalance(ctx context.Context, groupID 
 
 // Create implements domain.TransactionService.
 func (t *transactionService) Create(ctx context.Context, req dto.CreateTransactionRequest, currentUserID string) (dto.TransactionResponse, error) {
+	wallet, err := t.walletRepository.FindByUserID(ctx, currentUserID)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return dto.TransactionResponse{}, errors.New("wallet not found")
+		}
+		return dto.TransactionResponse{}, err
+	}
+
+	if req.Type == "expense" && wallet.Balance < req.Amount {
+		return dto.TransactionResponse{}, errors.New("insufficient balance")
+	}
+
 	if req.Amount <= 0 {
 		return dto.TransactionResponse{}, errors.New("amount must be greater than zero")
 	}
 
+	sqlDB := t.db.Db
+	sqlTx, err := sqlDB.BeginTx(ctx, nil)
+	if err != nil {
+		return dto.TransactionResponse{}, err
+	}
+
+	commited := false
+	defer func() {
+		if !commited {
+			_ = sqlTx.Rollback()
+		}
+	}()
+
 	tx := domain.Transaction{
 		ID:          uuid.NewString(),
 		GroupID:     sqlNullStringPtr(req.GroupID),
+		WalletID:    wallet.ID,
 		CreatedBy:   currentUserID,
 		PaidBy:      req.PaidBy,
 		Amount:      req.Amount,
@@ -47,9 +79,26 @@ func (t *transactionService) Create(ctx context.Context, req dto.CreateTransacti
 		UpdatedAt:   time.Now(),
 	}
 
-	if err := t.transactionRepository.Save(ctx, &tx); err != nil {
+	if err := t.transactionRepository.SaveTx(ctx, sqlTx, &tx); err != nil {
 		return dto.TransactionResponse{}, err
 	}
+
+	var delta float64
+	if req.Type == "expense" {
+		delta = -req.Amount
+	} else {
+		delta = req.Amount
+	}
+
+	if err = t.walletRepository.UpdateBalanceTx(ctx, sqlTx, wallet.ID, delta); err != nil {
+		return dto.TransactionResponse{}, err
+	}
+
+	if err = sqlTx.Commit(); err != nil {
+		return dto.TransactionResponse{}, err
+	}
+
+	commited = true
 
 	return toTransactionResponse(tx), nil
 }
@@ -57,10 +106,14 @@ func (t *transactionService) Create(ctx context.Context, req dto.CreateTransacti
 // Delete implements domain.TransactionService.
 func (t *transactionService) Delete(ctx context.Context, id string) error {
 	existing, err := t.transactionRepository.FindByID(ctx, id)
-	if err != nil {return err}
-	if existing.ID == "" {return errors.New("transaction not found")}
+	if err != nil {
+		return err
+	}
+	if existing.ID == "" {
+		return errors.New("transaction not found")
+	}
 
-	return  t.transactionRepository.Delete(ctx, id)
+	return t.transactionRepository.Delete(ctx, id)
 }
 
 // GetByDateRange implements domain.TransactionService.
@@ -79,7 +132,7 @@ func (t *transactionService) GetByGroup(ctx context.Context, groupID string) ([]
 	for _, t := range txs {
 		responses = append(responses, toTransactionWithDeatailResponse(t))
 	}
-	return  responses, nil
+	return responses, nil
 }
 
 // GetBySource implements domain.TransactionService.
@@ -218,8 +271,8 @@ func sqlNullString(s string) sql.NullString {
 }
 
 func sqlNullStringPtr(s *string) sql.NullString {
-	if s != nil {
+	if s != nil && *s != "" {
 		return sql.NullString{String: *s, Valid: true}
 	}
-	return sql.NullString{}
+	return sql.NullString{Valid: false}
 }

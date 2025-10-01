@@ -9,12 +9,14 @@ import (
 	"divvy/divvy-api/internal/service"
 	"fmt"
 
+	"github.com/doug-martin/goqu/v9"
 	"github.com/gofiber/fiber/v2"
 )
 
 func main() {
 	cnf := config.Get()
 	dbConnection := connection.GetDatabase(cnf.Database)
+	db := goqu.New("postgres", dbConnection)
 
 	app := fiber.New()
 	app.Use(middleware.CustomLogger())
@@ -30,7 +32,7 @@ func main() {
 	userService := service.NewUser(userRepository)
 	groupService := service.NewGroup(groupRepository, userRepository)
 	groupMemberService := service.NewGroupMember(groupMemberRepository, groupRepository, userRepository)
-	transactionService := service.NewTransaction(transactionRepository)
+	transactionService := service.NewTransaction(transactionRepository, walletRepository, db)
 	walletService := service.NewWallet(walletRepository)
 
 	api.NewAuth(app, authService)

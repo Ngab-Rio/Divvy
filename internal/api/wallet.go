@@ -24,6 +24,7 @@ func NewWallet(app *fiber.App, walletService domain.WalletService, secret string
 
 	wallets.Get("/:id", wa.getByID)
 	wallets.Post("/", wa.CreateWallet)
+	wallets.Put("/:id", wa.UpdateWallet)
 }
 
 func (wa walletAPI) getByID(ctx *fiber.Ctx) error {
@@ -51,6 +52,24 @@ func (wa walletAPI) CreateWallet(ctx *fiber.Ctx) error {
 
 	wallet, err := wa.walletService.CreateWallet(w, currentID, req)
 	if err != nil {
+		return ctx.Status(http.StatusInternalServerError).JSON(dto.CreateResponseError(err.Error()))
+	}
+	return ctx.Status(http.StatusOK).JSON(dto.CreateResponseSuccess(wallet))
+}
+
+func (wa walletAPI) UpdateWallet(ctx *fiber.Ctx) error {
+	w, cancel := context.WithTimeout(ctx.Context(), time.Second * 10)
+	defer cancel()
+
+	var req dto.UpdateWalletRequest
+	if err := ctx.BodyParser(&req); err != nil {
+		return ctx.Status(http.StatusBadRequest).JSON(dto.CreateResponseError("invalid request body"))
+	}
+
+	id := ctx.Params("id")
+
+	wallet, err := wa.walletService.UpdateWallet(w, id, req)
+	if err != nil{
 		return ctx.Status(http.StatusInternalServerError).JSON(dto.CreateResponseError(err.Error()))
 	}
 	return ctx.Status(http.StatusOK).JSON(dto.CreateResponseSuccess(wallet))

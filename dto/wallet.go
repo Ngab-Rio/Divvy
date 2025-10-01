@@ -18,3 +18,8 @@ type WalletWithTransactionsResponse struct {
 type CreateWalletRequest struct {
 	Balance float64 `json:"balance" validate:"gte=0"`
 }
+
+type UpdateWalletRequest struct {
+	Balance float64 `json:"balance" validate:"gte=0"`
+}
+
