@@ -4,7 +4,7 @@ import "time"
 
 type CreateTransactionRequest struct {
 	GroupID     *string   `json:"group_id,omitempty"`
-	CreatedBy   string    `json:"created_by" validate:"required"`
+	CreatedBy   string    `json:"created_by" validate:"omitempty"`
 	PaidBy      string    `json:"paid_by" validate:"required"`
 	Amount      float64   `json:"amount" validate:"required"`
 	Description string    `json:"description,omitempty"`
